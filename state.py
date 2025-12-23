@@ -5,8 +5,16 @@ from typing import Union, Tuple
 import torch
 import torch.nn.functional as F
 import numpy as np
+import hashlib
 
 def get_rep(x: Union[int,float]) -> str: return {-1.0: 'X', 1.0: 'O'}.get(x, ' ')
+
+""" 
+hash the state representation, returning byte string. this implementation is not shape/dtype sensitive, 
+but we use the same shape/dtype for every state rep in this project
+"""
+def hash_tensor(t: torch.Tensor) -> bytes: return hashlib.sha256(t.detach().contiguous().numpy().tobytes()).digest()
+    
 
 class Game:
 
@@ -17,13 +25,15 @@ class Game:
         self.width: int = W
         self.height:int = H
         self.board: torch.Tensor = torch.zeros(size=(H, W))
-        self.last_move: Tuple[int, int] = (-1, -1)
         self.win_score: int = 0 # default is a draw
         self.sep: str = '\n---' + ('+---' * (self.width - 2)) + '+---\n'
         self.conv_hori = torch.tensor([[1., 1., 1., 1.]]).view(1,1,1,4).repeat(1,1,1,1)
         self.conv_vert = torch.tensor([[1.], [1.], [1.], [1.]]).view(1,4,1).repeat(1,1,1,1)
         self.conv_diag = torch.eye(4).view(1,1,4,4).repeat(1,1,1,1)
         self.num_moves = 0
+
+        # stack to hold all moves done already
+        self.move_stack = []
 
 
     def __repr__(self) -> str:
@@ -39,6 +49,7 @@ class Game:
         rep[2, :, :] = self.turn
         return rep
 
+    def get_hash(self) -> bytes: return hash_tensor(self.get_state_tensor())
 
     def over(self) -> bool:
         """ returns true if 4 in a row via convolutions, or board is full.  """
@@ -64,16 +75,22 @@ class Game:
         """ return idx of all columns that are not full (turn independent)"""
         return np.arange(self.width)[(self.board == 0.).any(dim=0)]
 
+    def get_valid_moves_mask(self) -> torch.Tensor:
+        mask = torch.zeros((7,)) # mask probability of illegal moves to 0
+        mask[self.get_valid_moves()] = 1.
+        return mask
+
     def make_move(self, col: int) -> None:
         """ drop current token into slot, update turn """
         row = max(torch.argwhere(self.board[:, col] == 0.))
         self.board[row, col] = self.turn
-        self.last_move = (row, col)
+        self.move_stack.append((row, col))
         self.turn *= -1
         self.num_moves += 1
 
     def undo_move(self) -> None:
-        self.board[self.last_move[0], self.last_move[1]] = 0.
+        r,c = self.move_stack.pop()
+        self.board[r, c] = 0.
         self.win_score = 0 # reset in case we had just played last piece
         self.num_moves -= 1
         self.turn *= -1

@@ -4,12 +4,12 @@ from utils import SimpleBot, LookaheadBot
 
 if __name__=="__main__":
 
-    # bot = AlphaZero()
+    bot1 = AlphaZero()
     # bot = SimpleBot()
     # bot1 = SimpleBot()
-    bot1 = LookaheadBot()
+    # bot1 = LookaheadBot()
     bot2 = LookaheadBot()
-    N = 1000
+    N = 1
 
     wins = {-1: 0, 1: 0, 0: 0}
     avg_moves = 0.0
