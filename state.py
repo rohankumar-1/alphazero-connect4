@@ -43,13 +43,13 @@ class Game:
 
     def get_state_tensor(self) -> torch.Tensor:
         """ representation: first layer is current player's pieces, second layer is opponents, third layer is turn """
-        rep:torch.Tensor = torch.zeros(size=(3, self.height, self.width))
-        rep[0, :, :] = self.board == self.turn # first layer
-        rep[1, :, :] = self.board == -self.turn
-        rep[2, :, :] = self.turn
+        rep:torch.Tensor = torch.zeros(size=(1, 3, self.height, self.width))
+        rep[0, 0, :, :] = self.board == self.turn # first layer
+        rep[0, 1, :, :] = self.board == -self.turn
+        rep[0, 2, :, :] = self.turn
         return rep
 
-    def get_hash(self) -> bytes: return hash_tensor(self.get_state_tensor())
+    def get_hash(self) -> bytes: return hash_tensor(self.get_state_tensor().squeeze())
 
     def over(self) -> bool:
         """ returns true if 4 in a row via convolutions, or board is full.  """
