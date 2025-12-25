@@ -100,13 +100,14 @@ class Game:
         self.num_moves -= 1
         self.turn *= -1
 
-    @staticmethod
-    def build_game(tens: torch.Tensor):
-        assert tens.shape[0] == 2
-        H, W = tens[0].shape
-        g = Game(H, W, turn=1)
-        g.board = torch.sum(tens, dim=0).squeeze()
-        return g
+    # TODO: rewrite function to build a game from state tensor
+    # @staticmethod
+    # def build_game(tens: torch.Tensor):
+    #     assert tens.shape[0] == 2
+    #     H, W = tens[0].shape
+    #     g = Game(H, W, turn=1)
+    #     g.board = torch.sum(tens, dim=0).squeeze()
+    #     return g
 
 
 

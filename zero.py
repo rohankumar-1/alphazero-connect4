@@ -12,8 +12,8 @@ from collections import defaultdict
 from utils import _save_to_safetensor
 from concurrent.futures import ProcessPoolExecutor
 
-MCTS = 50 # paper has 800 iterations for chess (connect4 has smaller space)
-C_ULT = 0.5 # tradeoff between eploitation, exploration
+MCTS = 100 # paper has 800 iterations for chess (connect4 has smaller space)
+C_ULT = 0.3 # tradeoff between eploitation, exploration
 
 class AlphaZero:
 

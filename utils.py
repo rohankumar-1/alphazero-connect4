@@ -29,8 +29,9 @@ class PolicyValueDataset(Dataset):
     """ 
     The PolicyValueDataset properly formats data samples, performing the following functions: 
     1) Load in the most recent 4 selfplay iterations: games later than that probably use really weak models, so we can safely ignore 
-    2) Applies data augmentations (flipping state/policy vectors, since connect-four is symmetric)
-    3) Returns single samples for Dataloader
+    2) Average out p,v for states that were seen multiple times
+    3) Applies data augmentations (flipping state/policy vectors, since connect-four is symmetric)
+    4) Returns single samples for Dataloader
     """
 
     def __init__(self, window=4, data_dir:str="./data/"):

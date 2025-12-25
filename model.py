@@ -1,10 +1,10 @@
 from torch.utils.data import DataLoader
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from utils import PolicyValueDataset
 from tqdm import tqdm
+from typing import Tuple
 
 class ResBlock(nn.Module):
     def __init__(self, channels:int):
@@ -66,7 +66,7 @@ class PolicyValueNetwork(nn.Module):
         
         return policy_logits, value
 
-    def predict(self, x):
+    def predict(self, x) -> Tuple[torch.Tensor, float]:
         """ helper for MCTS inference """
         self.eval()
         with torch.no_grad():
